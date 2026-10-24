@@ -17,9 +17,19 @@ The downstream pipeline enforces this mechanically — its pre-publish gate refu
 git clone https://github.com/royalskynet/viral-scout-skill ~/.claude/skills/viral-scout
 ```
 
-## Scope
+```bash
+mkdir -p refs && cp templates/*.md refs/     # start your own ledger
+python3 scripts/trend_scan.py                # daily trend candidates, no API key
+.venv/bin/python scripts/breakdown.py <url>  # shot table, transcript, first-3-seconds hook
+python3 scripts/ref_analyze.py <file> --out <prefix>   # cuts, median shot length, contact sheet
+for t in tests/test_*.py; do python3 "$t"; done
+```
 
-This is the **de-identified documentation layer**, published as portfolio work. The ledgers it reads and the films it feeds stay private, so paths and repo links here point at a private source.
+Needs `yt-dlp` and `ffmpeg` on PATH. `trend_scan.py` only reads public endpoints — no key, no model calls.
+
+## What's here, what isn't
+
+The method, the verified-command table, the scraping and breakdown scripts, and empty ledger templates. The ledger **contents** are not here: that evidence is the asset, and it is specific to one channel's topics. `benchmarks.py` (channel medians via the YouTube Data API) stays private because it rides the publishing stack's OAuth; the SKILL table says what it returns so you can swap in your own key.
 
 The pipeline that consumes this evidence is a separate skill: [vibe-shorts](https://github.com/royalskynet/vibe-shorts-skill).
 
@@ -42,8 +52,18 @@ The pipeline that consumes this evidence is a separate skill: [vibe-shorts](http
 git clone https://github.com/royalskynet/viral-scout-skill ~/.claude/skills/viral-scout
 ```
 
-## 範圍
+```bash
+mkdir -p refs && cp templates/*.md refs/     # 開自己的帳本
+python3 scripts/trend_scan.py                # 當天熱度候選，不需 API key
+.venv/bin/python scripts/breakdown.py <網址> # 鏡頭表、逐字稿、前 3 秒鉤子
+python3 scripts/ref_analyze.py <檔> --out <前綴>   # 切點、鏡長中位數、拼圖
+for t in tests/test_*.py; do python3 "$t"; done
+```
 
-這是**脫敏後的文件層**，作為作品集公開。它讀的帳本與餵的片子保持私有，所以文件裡的路徑與連結指向私有正本。
+需要 PATH 上有 `yt-dlp` 與 `ffmpeg`。`trend_scan.py` 只抓公開介面，不需 key、不呼叫模型。
+
+## 帶了什麼、沒帶什麼
+
+帶的是方法、已驗證命令表、抓取與拆片腳本，以及空的帳本範本。帳本**內容**不帶：那份證據才是資產，而且綁某個頻道的題材。`benchmarks.py`（用 YouTube Data API 算頻道中位數）留私有端，因為它沿用發布鏈的 OAuth；SKILL 表格寫了它產出什麼，要用換自己的 key。
 
 吃這些證據的流水線在另一個技能包：[vibe-shorts](https://github.com/royalskynet/vibe-shorts-skill)。

@@ -6,16 +6,18 @@ description: 營銷號（vibe-shorts）找爆款：選題、鉤子、節奏、�
 # viral-scout — 爆款證據，先查帳再出門
 
 原則：凡營銷號需要資訊都以爆款為據；工具開源輪子優先，不寫爬蟲（wheel 卡 2026-10-11、10-13）。
-專案：`/Users/you/dev/vibe-shorts-pipeline`。做片走 skill `vibe-shorts`。
+抓取與拆片腳本在 `scripts/`，帳本格式與第一次怎麼開帳見 `SOURCES.md` 與 `templates/`；做片走 skill `vibe-shorts`。
 
 ## 0. 先查帳（命中就引用，不重抓）
+
+第一次用先開帳：`mkdir -p refs && cp templates/*.md refs/`（帳本是自己的資產，技能包只帶空範本）。
 
 | 要什麼 | 先看 | 新鮮度 |
 |---|---|---|
 | 某題有沒有爆款 | `refs/VIRAL-LEDGER.md`（逐題證據帳） | 30 天內直接用 |
-| 頭部頻道、中位數 | `refs/BENCHMARKS.md`（`scripts/benchmarks.py` 產生） | 90 天 |
+| 頭部頻道、中位數 | `refs/BENCHMARKS.md`（`scripts/benchmarks.py` 產生，需自己的 YouTube Data API 憑證；該腳本綁帳號、留私有端） | 90 天 |
 | 爆款怎麼拍（鏡頭／鉤子／逐字稿） | `refs/BREAKDOWN.md`、`refs/<頻道>-<id>/` | 不過期 |
-| 今天熱度候選 | `~/.vibe-trends/<日期>.md`（launchd 每天跑 `daily-trends.sh`） | 當天 |
+| 今天熱度候選 | `~/.vibe-trends/<日期>.md`（排程每天跑 `python3 scripts/trend_scan.py`） | 當天 |
 
 ## 1. 各平台已驗證命令
 
