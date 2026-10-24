@@ -6,7 +6,7 @@ description: 營銷號（vibe-shorts）找爆款：選題、鉤子、節奏、�
 # viral-scout — 爆款證據，先查帳再出門
 
 原則：凡營銷號需要資訊都以爆款為據；工具開源輪子優先，不寫爬蟲（wheel 卡 2026-10-11、10-13）。
-專案：`/Users/you/dev/vibe-shorts-pipeline`。帳本與腳本的 GitHub 正本連結在 `SOURCES.md`；做片走 skill `vibe-shorts`。
+專案：`/Users/you/dev/vibe-shorts-pipeline`。做片走 skill `vibe-shorts`。
 
 ## 0. 先查帳（命中就引用，不重抓）
 
