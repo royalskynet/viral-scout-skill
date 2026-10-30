@@ -6,13 +6,13 @@
 
 帳本內容是資產，不公開；格式與開帳方式在 `templates/`：
 
-| 帳本 | 空範本 | 新鮮度 | 誰產生 |
-|---|---|---|---|
-| `refs/VIRAL-LEDGER.md` 逐題證據 | `templates/VIRAL-LEDGER.md` | 30 天 | 手寫（每次查完 append） |
-| `refs/BENCHMARKS.md` 頭部頻道與中位數 | `templates/BENCHMARKS.md` | 90 天 | `scripts/benchmarks.py`（私有端，綁 YouTube OAuth） |
-| `refs/BREAKDOWN.md` 爆款怎麼拍 | `templates/BREAKDOWN.md` | 不過期 | `scripts/breakdown.py` |
-| `refs/postmortem.md` 自己發過的片 | `templates/postmortem.md` | 每片兩次 | 手寫＋平台數據 |
-| 當天熱度候選 `~/.vibe-trends/<日期>.md` | — | 當天 | `scripts/trend_scan.py`（排程） |
+| 帳本 | 空範本 | 誰產生 |
+|---|---|---|
+| `refs/VIRAL-LEDGER.md` 逐題證據 | `templates/VIRAL-LEDGER.md` | 手寫（每次查完 append） |
+| `refs/BENCHMARKS.md` 頭部頻道與中位數 | `templates/BENCHMARKS.md` | `scripts/benchmarks.py`（私有端，綁 YouTube OAuth） |
+| `refs/BREAKDOWN.md` 爆款怎麼拍 | `templates/BREAKDOWN.md` | `scripts/breakdown.py` |
+| `refs/postmortem.md` 自己發過的片 | `templates/postmortem.md` | 手寫＋平台數據 |
+| 當天熱度候選 `~/.vibe-trends/<日期>.md` | — | `scripts/trend_scan.py`（排程） |
 
 ## 抓取與分析腳本（第 1 節表格）
 
