@@ -7,7 +7,6 @@
   scripts/trend_scan.py                 抓熱度並寫當天報告
   scripts/trend_scan.py --refs          另外用 yt-dlp 找同題爆款（慢，約 +30 秒）
   scripts/trend_scan.py --selftest      只跑打分器的自檢，不連網
-  scripts/trend_scan.py --hot           熱點快線：HN 24h 內 AI 新品發布，只印沒推過的（scripts/hot-watch.sh 每 2h）
 
 報告寫到 ~/.vibe-trends/<日期>.md。
 
@@ -286,53 +285,6 @@ def collect_hn() -> list[dict]:
     return out
 
 
-# 熱點快線（2026-10-20）：Kin 48 天萬粉復盤，爆款多是 AI 新品發布當天就出的中文片／貼文。
-# 題型桶看 45 天窗，趕不上當天；這裡另看 24 小時、只收「AI 主體＋發布動作」。
-HOT_ENTITY = ["openai", "anthropic", "claude", "chatgpt", "gpt-", "gemini", "grok",
-              "deepseek", "qwen", "llama", "mistral", "sora", "codex", "copilot", "cursor"]
-HOT_ACTION = ["introducing", "launch", "release", "announc", "now available", "unveil",
-              "open-source", "open source", "open-weight"]
-# 2026-10-20 實測 HN 7 天 AI 標題：發布貼多半是裸型號加版號（「Gemini 4 Argon」
-# 「DeepSeek V4.1 Flash 1017」），沒有發布動詞，所以型號＋數字也算。
-HOT_VERSION = re.compile(r"\b(gpt|claude|gemini|grok|deepseek|qwen|llama|mistral|sora|codex)[\s-]*v?\d")
-HOT_MODEL = re.compile(r"\b(foundation|frontier|open|reasoning|new)[\s-]+models?\b")
-HOT_MIN_POINTS = 150
-HOT_SEEN = Path.home() / ".vibe-trends" / "hot-seen.json"
-
-
-def is_hot(title: str) -> bool:
-    low = title.lower()
-    if not any(k in low for k in HOT_ENTITY):
-        return False
-    return (any(k in low for k in HOT_ACTION) or bool(HOT_VERSION.search(low))
-            or bool(HOT_MODEL.search(low)))
-
-
-def collect_hot() -> list[dict]:
-    """HN 24 小時內 ≥HOT_MIN_POINTS 分、AI 主體＋發布動作的 story，分數高的在前。"""
-    since = int(time.time()) - 86400
-    url = ("https://hn.algolia.com/api/v1/search?"
-           + urllib.parse.urlencode({
-               "tags": "story", "hitsPerPage": 100,
-               "numericFilters": f"created_at_i>{since},points>{HOT_MIN_POINTS}"}))
-    data = json.loads(fetch(url))
-    out = [{"id": h["objectID"], "title": h["title"].strip(), "points": int(h.get("points") or 0),
-            "url": h.get("url") or f"https://news.ycombinator.com/item?id={h['objectID']}"}
-           for h in data.get("hits", []) if h.get("title") and is_hot(h["title"])]
-    return sorted(out, key=lambda x: -x["points"])
-
-
-def hot_main() -> int:
-    """印出沒推過的熱點（每行一條），推過的記進 HOT_SEEN。沒新的就不印。"""
-    seen = set(json.loads(HOT_SEEN.read_text())) if HOT_SEEN.is_file() else set()
-    new = [h for h in collect_hot() if h["id"] not in seen]
-    for h in new:
-        print(f"{h['points']}分 {h['title']} {h['url']}")
-    HOT_SEEN.parent.mkdir(exist_ok=True)
-    HOT_SEEN.write_text(json.dumps(sorted(seen | {h["id"] for h in new})))
-    return 0
-
-
 def collect_wikipedia() -> list[dict]:
     """英文維基前一天瀏覽量前 1000 條，命中題型桶的留下來。
 
@@ -480,20 +432,6 @@ def selftest() -> int:
     assert sk > ss, "高互動量的無關新聞不該壓過低互動量的對路題"
     # 命中兩個桶要贏過命中一個桶的同互動量題目
     assert score_of(800, ["數學悖論", "冷門定理"]) > score_of(800, ["數學悖論"])
-    # 熱點快線：AI 主體＋發布動作兩個都要中
-    assert is_hot("Introducing GPT-6"), "新品發布應該算熱點"
-    assert is_hot("Anthropic releases Claude 5"), "新品發布應該算熱點"
-    assert not is_hot("Why I stopped using Claude"), "沒有發布動作不算熱點"
-    assert not is_hot("Introducing a new Rust web framework"), "非 AI 主體不算熱點"
-    # 2026-10-20 HN 真實標題
-    for t in ["Gemini 4 Argon", "DeepSeek V4.1 Flash 1017 (Max)",
-              "Timestral: Mistral's time-series foundation models"]:
-        assert is_hot(t), f"裸型號發布應該算熱點：{t}"
-    for t in ["OpenAI engineer arrested in bugging of executive conference room",
-              "Anthropic assigned highest junk credit rating in June",
-              "Llama.cpp on a jailbroken PS5: run any GGUF model natively on the console",
-              "How the Claude Code team does code review"]:
-        assert not is_hot(t), f"新聞／教學不算發布：{t}"
     # 去重要認出同一條（標點與大小寫不同）
     assert len(dedup([{"title": "A Theorem!"}, {"title": "a theorem"}])) == 1
 
@@ -542,12 +480,9 @@ def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--refs", action="store_true", help="用 yt-dlp 找同題爆款（慢）")
     ap.add_argument("--selftest", action="store_true")
-    ap.add_argument("--hot", action="store_true", help="熱點快線：只看 24h AI 發布")
     args = ap.parse_args()
     if args.selftest:
         return selftest()
-    if args.hot:
-        return hot_main()
 
     items = dedup(collect_hn() + collect_wikipedia() + collect_reddit()
                   + collect_google_tw())
